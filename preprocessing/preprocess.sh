@@ -1,0 +1,10 @@
+#python preprocessing/extract_clip_visual_embedding.py --device 1 --partition 0 &
+python extract_clip_visual_embedding.py --device 1 --partition 1 &
+python extract_clip_visual_embedding.py --device 1 --partition 2 &
+python extract_clip_visual_embedding.py --device 2 --partition 3 &
+python extract_clip_visual_embedding.py --device 2 --partition 4 &
+python extract_clip_visual_embedding.py --device 2 --partition 5 &
+python extract_clip_visual_embedding.py --device 3 --partition 6 &
+python extract_clip_visual_embedding.py --device 3 --partition 7 &
+python extract_clip_visual_embedding.py --device 3 --partition 8 &
+python extract_clip_visual_embedding.py --device 4 --partition 9 &
