@@ -2,7 +2,7 @@ import math
 import os
 import sys
 import argparse
-os.chdir('/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT')
+os.chdir('..')
 sys.path.append(os.getcwd())
 
 from datasets import RGDataset, FisVDataset, FisVPretrainingDataset
@@ -13,35 +13,31 @@ import cv2
 from tqdm import tqdm
 import itertools
 
-def get_fps(vid_id):
-    video_path = f'/halcyon/archive1/arr159/fis-v/videos/{vid_id}.mp4'
+def get_fps(vid_id, video_dir):
+    video_path = f'{video_dir}/{vid_id}.mp4'
     cap = cv2.VideoCapture(video_path)
 
     # Get the frames per second (fps) of the video
     fps = cap.get(cv2.CAP_PROP_FPS)
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    # print(f"Frame rate of the video: {fps} frames per second. Total Frames {total_frames}")
-
     # Release the video capture object
     cap.release()
     if fps == 0:
-        video_path = f'/halcyon/archive1/arr159/fis-v/videos/{vid_id}.mov'
+        video_path = f'{video_dir}/{vid_id}.mov'
         cap = cv2.VideoCapture(video_path)
 
         # Get the frames per second (fps) of the video
         fps = cap.get(cv2.CAP_PROP_FPS)
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-        # print(f"Frame rate of the video: {fps} frames per second. Total Frames {total_frames}")
-
         # Release the video capture object
         cap.release()
     return fps
 
-video_path='/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/fis-v/swintx_avg_fps25_clip32'
-test_label_path='/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/fis-v/test.txt'
-train_label_path='/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/fis-v/train.txt'
+video_path='../data/fis-v/swintx_avg_fps25_clip32'
+test_label_path='../data/fis-v/test.txt'
+train_label_path='../data/fis-v/train.txt'
 clip_num=128
 score_type='TES'
 # gdlt_fis_v_implicit_seg_128_clip_bv_kb_goe_pred_rescaling_1e-4_pred_bv_n_encoder_2_best
@@ -49,7 +45,7 @@ score_type='TES'
 
 def get_model(model_name, version='best', encoder_layers=1, device=0, predict_bv=False):
     from models import model, loss
-    checkpoint = torch.load('/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/ckpt/' + f'{model_name}_{version}' + '.pkl')
+    checkpoint = torch.load('../data/ckpt/' + f'{model_name}_{version}' + '.pkl')
     model = model.GDLT(1024, 256, 1, encoder_layers,
                        2, 7, 0.3, predict_base_values=predict_bv).to(device)
     model.load_state_dict(checkpoint)
@@ -59,10 +55,10 @@ def get_clip_gdlt_model(model_name, version='best', encoder_layers=1, decoder_la
                         vision_vlm_inject=False, restrict_first_quad=False):
     from models import model, loss
     checkpoint = torch.load(
-        '/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/ckpt/' + f'{model_name}_{version}' + '.pkl')
+        '../data/ckpt/' + f'{model_name}_{version}' + '.pkl')
     model = model.CLIP_GDLT_W_Decoder(1024, 1, encoder_layers,
                                       decoder_layers, 7, 0.3,
-                                      clip_embedding_path="/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/text_embeddings_and_weights.pth",
+                                      clip_embedding_path="../text_embeddings_and_weights.pth",
                                       vision_vlm_inject=vision_vlm_inject, restrict_first_quad=restrict_first_quad).to(
         device)
     model.load_state_dict(checkpoint)
@@ -81,9 +77,9 @@ def get_clip_gdlt_model(model_name, version='best', encoder_layers=1, decoder_la
 def build_clip_model(encoder_layers=1, decoder_layers=2, device=0, vision_vlm_inject=False, load_pretraining_ckpt=None, simplified=False):
     from models import model, loss
     model = model.CLIP_GDLT_W_Decoder(1024, 1, encoder_layers,
-                                      decoder_layers, 7, 0.3, clip_embedding_path="/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/text_embeddings_and_weights.pth", vision_vlm_inject=vision_vlm_inject, simplified=simplified).to(device)
+                                      decoder_layers, 7, 0.3, clip_embedding_path="../text_embeddings_and_weights.pth", vision_vlm_inject=vision_vlm_inject, simplified=simplified).to(device)
     if load_pretraining_ckpt is not None:
-        checkpoint = '/afs/cs.pitt.edu/usr0/arr159/figure_skating/CVPR22_GDLT/ckpt/' + f'{load_pretraining_ckpt}' + '.pkl'
+        checkpoint = '../data/ckpt/' + f'{load_pretraining_ckpt}' + '.pkl'
         state_dict = torch.load(checkpoint)
         model.load_state_dict(state_dict)
         print("Loaded weights at:", checkpoint)
@@ -273,7 +269,7 @@ def main():
     model = build_clip_model(encoder_layers=1, decoder_layers=2, device=args.device, vision_vlm_inject=False,
                              load_pretraining_ckpt=ckpt_name, simplified=args.simplified_rubric)
     import pandas as pd
-    df = pd.read_csv('/afs/cs.pitt.edu/usr0/arr159/figure_skating/segment_annotations.csv')
+    df = pd.read_csv('../../data/segment_annotations.csv') 
     df['fps'] = df['video_id'].apply(lambda vid_id: get_fps(vid_id))
 
     evaluate(model, df, args)
