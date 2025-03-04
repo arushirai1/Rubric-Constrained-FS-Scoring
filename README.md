@@ -1,4 +1,4 @@
-# Rubric-Constrained Few-Shot Scoring for Action Assessment
+# Rubric-Constrained Figure Skating Scoring
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-red)](https://openaccess.thecvf.com/content/WACV2025/papers/Rai_Rubric-Constrained_Figure_Skating_Scoring_WACV_2025_paper.pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
