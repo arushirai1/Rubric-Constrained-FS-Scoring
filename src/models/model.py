@@ -113,7 +113,7 @@ class GDLT(nn.Module):
         return {'output': out, 'embed': q1, 'attns': attns, 'base_value_predictions': base_values_pred, "goe_predictions": goe_prediction}
 
 class CLIP_GDLT_W_Decoder(nn.Module):
-    def __init__(self, in_dim, n_head, n_encoder, n_decoder, n_query, dropout, clip_embedding_path, l1_norm=False, use_sigmoid=False, use_relu=False, vision_vlm_inject=False, restrict_first_quad=False, simplified=False, is_rg=False):
+    def __init__(self, in_dim, n_head, n_encoder, n_decoder, n_query, dropout, clip_embedding_path, l1_norm=False, use_sigmoid=False, use_relu=False, vision_vlm_inject=False, restrict_first_quad=False, simplified=False, is_rg=False, RubricItems=None):
         super(CLIP_GDLT_W_Decoder, self).__init__()
         hidden_dim = 768 # hidden dim should be the same size as clip
 
@@ -136,7 +136,7 @@ class CLIP_GDLT_W_Decoder(nn.Module):
         )
 
         self.segment_anchors = nn.Embedding(n_query, hidden_dim)
-        self.clip_classifier=CLIPClassifer(clip_embedding_path, l1_norm, use_sigmoid, use_relu, restrict_first_quad, simplified=simplified, is_rg=is_rg)
+        self.clip_classifier=CLIPClassifer(clip_embedding_path, l1_norm, use_sigmoid, use_relu, restrict_first_quad, simplified=simplified, is_rg=is_rg, RubricItems=RubricItems)
         self.vision_vlm_inject=vision_vlm_inject
 
     def pretraining_forward(self, x, need_weights=False, clip_vision_inject=None):
@@ -204,7 +204,7 @@ class CLIP_GDLT(nn.Module):
         return out
 
 class CLIPClassifer(nn.Module):
-    def __init__(self, path_to_clip_classifier, l1_norm, use_sigmoid, use_relu, restrict_first_quad, simplified, is_rg=False):
+    def __init__(self, path_to_clip_classifier, l1_norm, use_sigmoid, use_relu, restrict_first_quad, simplified, is_rg=False, RubricItems=None):
         super(CLIPClassifer, self).__init__()
         if not Path(path_to_clip_classifier).exists():
             print("invalid clip classifier path")
@@ -214,11 +214,10 @@ class CLIPClassifer(nn.Module):
         
         if simplified:
             from models.text_encoder import TextEncoder
-            from data.rubric_items import RubricItems
-
             text_encoder = TextEncoder("clip", aggregation_method="embed")
             # self.text_prompt = f"a photo of a %s"
             # get text embeddings for rubric items
+            assert RubricItems is not None
             rubric_items = RubricItems(simplified, text_prompt=False, is_rg=self.is_rg)
             self.clip_classifier = torch.load(path_to_clip_classifier)
 

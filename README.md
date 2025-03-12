@@ -3,7 +3,7 @@
 [![Paper](https://img.shields.io/badge/Paper-PDF-red)](https://openaccess.thecvf.com/content/WACV2025/papers/Rai_Rubric-Constrained_Figure_Skating_Scoring_WACV_2025_paper.pdf)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Development Notice**: This repository is currently under active development. The code is being updated and tested, and model weights will be uploaded soon. Please do not use this codebase at the moment. We will update this notice when the repository is ready for use.
+> **Development Notice**: Ready for use!
 
 This repository contains the implementation of [WACV 2025](https://openaccess.thecvf.com/content/WACV2025/papers/Rai_Rubric-Constrained_Figure_Skating_Scoring_WACV_2025_paper.pdf) paper of an interpretable-by-design approach for figure skating quality assessment which leverages rubric information used by judges and performs implicit segmentation of elements without additional segment annotations. This work builds upon the [codebase](https://github.com/xuangch/CVPR22_GDLT) of CVPR2022 paper "Likert Scoring with Grade Decoupling for Long-term Action Assessment".
 
@@ -41,9 +41,12 @@ pip install -r requirements.txt
 
 ## Dataset
 
-The features and label files for the Fis-V dataset can be downloaded [here](https://1drv.ms/u/s!AqXkt0Mw7p9llWEihc533CB87U5P?e=EadhCo).
+The features and label files for the Fis-V dataset can be downloaded [here](https://1drv.ms/u/s!AqXkt0Mw7p9llWEihc533CB87U5P?e=EadhCo). I store this in the data folder.
 
-The FS800 dataset is also supported in this implementation. Please visit this repo for download, note this is a subset of FS1000 (https://github.com/AndyFrancesco29/Audio-Visual-Figure-Skating).
+The FS800 dataset is also supported in this implementation. Please visit this repo for instructions on how to download, note this is a subset of FS1000 (https://github.com/AndyFrancesco29/Audio-Visual-Figure-Skating).
+
+## Pretrained weights
+You can download the best pretrained weights [here](https://www.dropbox.com/scl/fo/g6w1c270oqomgdwpw1nt6/ACcvXW7HxcnoTSzeE0gUcxQ?rlkey=hjtf85wtszuqh6g0u9yys7mjz&st=s0dgbxgs&dl=0).
 
 ## Usage
 
@@ -53,11 +56,11 @@ First, you need to run the pretraining phase which jointly learns visual-text al
 
 ```bash
 python main.py \
-    --video-path /path/to/video/features \
-    --train-label-path /path/to/train.txt \
-    --test-label-path /path/to/test.txt \
+    --video-path ../data/fis-v/swintx_avg_fps25_clip32 \
+    --train-label-path ../data/fis-v/train.txt \
+    --test-label-path ../data/fis-v/test.txt \
     --score-type TES \
-    --model-name pretraining_model_name \
+    --model-name your_model_name \
     --pretraining_threshold_pos 1.3 \
     --pretraining_threshold_neg -2 \
     --pretraining \
@@ -80,18 +83,19 @@ python main.py \
     --reg_weight 0.1 \
     --visual_triplet_loss \
     --visual_triplet_margin 0.5 \
-    --joint_pretraining
+    --joint_pretraining \
+    --vid_id_to_element_list_path ./elements_preprocessing/vid_id_to_element_list.json
 ```
 
 ### Training
 
-After pretraining, you can run the main training phase:
+After pretraining, you can run the main training phase, see the pretraining checkpoint:
 
 ```bash
 python main.py \
-    --video-path /path/to/video/features \
-    --train-label-path /path/to/train.txt \
-    --test-label-path /path/to/test.txt \
+    --video-path ../data/fis-v/swintx_avg_fps25_clip32 \
+    --train-label-path ../data/fis-v/train.txt \
+    --test-label-path ../data/fis-v/test.txt \
     --score-type TES \
     --model-name your_model_name \
     --action_rubric_mask \
@@ -104,34 +108,38 @@ python main.py \
     --n_encoder 1 \
     --n_decoder 2 \
     --n_query 7 \
-    --alpha 1.0 \
-    --margin 1.0 \
     --lr-decay cos \
     --decay-rate 0.01 \
     --dropout 0.3 \
+    --vid_id_to_element_list_path elements_preprocessing/vid_id_to_element_list.json \
     --clip_embedding_path text_embeddings_and_weights.pth \
     --n-workers 4 \
     --rescaling \
-    --rubric_simplified
+    --rubric_simplified \
+    --ckpt ../data/ckpt/0903_joint_pretraining_vis_triplet_margin_0.5_pretraining_best
 ```
 
 ### Testing
 
 ```bash
 python main.py \
-    --video-path /path/to/video/features \
-    --train-label-path /path/to/train.txt \
-    --test-label-path /path/to/test.txt \
+    --video-path ../data/fis-v/swintx_avg_fps25_clip32 \
+    --train-label-path ../data/fis-v/train.txt \
+    --test-label-path ../data/fis-v/test.txt \
     --score-type TES \
+    --action_rubric_mask \
+    --clip-num 128 \
     --n_encoder 1 \
     --n_decoder 2 \
     --n_query 7 \
-    --dropout 0.3 \
-    --clip_embedding_path text_embeddings_and_weights.pth \
-    --test \
-    --ckpt path/to/checkpoint \
+    --clip_embedding_path elements_preprocessing/text_embeddings_and_weights.pth \
+    --n-workers 4 \
     --rescaling \
-    --rubric_simplified
+    --rubric_simplified \
+    --vid_id_to_element_list_path elements_preprocessing/vid_id_to_element_list.json \
+    --test \
+    --ckpt ../data/0903_joint_pretraining_vis_triplet_margin_0.5_action_masking_finetune_best
+
 ```
 
 ## Baseline Replication
@@ -161,7 +169,7 @@ If you use this code in your research, please cite our paper:
 
 ## Acknowledgments
 
-This work builds upon the CVPR2022 paper "Likert Scoring with Grade Decoupling for Long-term Action Assessment". We thank the original authors for their valuable contributions.
+This work builds upon the CVPR2022 paper "Likert Scoring with Grade Decoupling for Long-term Action Assessment" and their codebase. We thank the original authors for their valuable contributions.
 
 ## License
 

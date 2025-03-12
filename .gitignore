@@ -1,3 +1,19 @@
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+src/.ipynb_checkpoints/
+src/models/.ipynb_checkpoints/
+
+# Ignore compiled Python files
+src/__pycache__/
+src/elements_preprocessing/__pycache__/
+src/models/__pycache__/
+
+# Ignore data and logs
+data/
+src/logs/
+
+# Ignore wandb directory
+src/wandb/
 
 *.iml
 *.xml

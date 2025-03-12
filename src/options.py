@@ -14,7 +14,7 @@ parser.add_argument('--action-type', type=str, default='Ball')
 parser.add_argument('--score-type', type=str, default='Total_Score')
 parser.add_argument('--clip_embedding_path', type=str, default=None)
 
-parser.add_argument('--model-name', type=str, default='action_net', help='name used to save model and logs')
+parser.add_argument('--model-name', type=str, default='test', help='name used to save model and logs')
 parser.add_argument("--ckpt", default=None, help="ckpt for pretrained model")
 parser.add_argument("--test", action='store_true', help="only evaluate, don't train")
 

@@ -5,7 +5,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from collections import defaultdict
-from data.rubric_items import RubricItems
+from rubric_items import RubricItems
 
 class PretrainingLossFn(nn.Module):
     def __init__(self, text_model_type, aggregation_method,  margin=0.5, enforce_dissimilarity=False, randomly_sample_dissim=False, metric='cosine', simplified=False, use_text_prompt=True, hand_negatives=False, visual_text_triplet_loss=False, num_queries=12):

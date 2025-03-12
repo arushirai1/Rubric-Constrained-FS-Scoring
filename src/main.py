@@ -121,11 +121,12 @@ if __name__ == '__main__':
 
     # load model
     if args.clip_embedding_path is not None:
+        from rubric_items import RubricItems
         if args.n_decoder > 0:
             model = model.CLIP_GDLT_W_Decoder(args.in_dim, args.n_head, args.n_encoder,
-                               args.n_decoder, args.n_query, args.dropout, args.clip_embedding_path, args.clip_l1_norm, args.clip_sigmoid, args.clip_relu, args.vision_vlm_inject, args.restrict_first_quad, args.rubric_simplified, is_rg = args.dataset_name == 'rg').to(device)
+                               args.n_decoder, args.n_query, args.dropout, args.clip_embedding_path, args.clip_l1_norm, args.clip_sigmoid, args.clip_relu, args.vision_vlm_inject, args.restrict_first_quad, args.rubric_simplified, is_rg = args.dataset_name == 'rg', RubricItems=RubricItems).to(device)
         else:
-            model = model.CLIP_GDLT(args.in_dim, args.n_head, args.n_encoder, args.dropout, args.clip_embedding_path).to(device)
+            model = model.CLIP_GDLT(args.in_dim, args.n_head, args.n_encoder, args.dropout, args.clip_embedding_path, RubricItems=RubricItems).to(device)
     else:
         model = model.GDLT(args.in_dim, args.hidden_dim, args.n_head, args.n_encoder,
                            args.n_decoder, args.n_query, args.dropout, args.predict_bv, args.predict_deductions, gdlt=args.gdlt).to(device)
@@ -150,7 +151,7 @@ if __name__ == '__main__':
 
     # load checkpoint
     if args.ckpt is not None:
-        checkpoint = torch.load('./ckpt/' + args.ckpt + '.pkl')
+        checkpoint = torch.load(args.ckpt + '.pkl')
         if args.fisvtofs800_pretrain:
             # Load with strict=False to allow partial loading
             missing_keys, unexpected_keys = model.load_state_dict(checkpoint, strict=False)
@@ -173,11 +174,11 @@ if __name__ == '__main__':
         raise SystemExit
 
     # record
-    if not os.path.exists("./ckpt/"):
-        os.makedirs("./ckpt/")
-    if not os.path.exists("./logs/" + args.model_name):
-        os.makedirs("./logs/" + args.model_name)
-    logger = SummaryWriter(os.path.join('./logs/', args.model_name))
+    if not os.path.exists("../data/ckpt/"):
+        os.makedirs("../data/ckpt/")
+    if not os.path.exists("../data/logs/" + args.model_name):
+        os.makedirs("../data/logs/" + args.model_name)
+    logger = SummaryWriter(os.path.join('../data/logs/', args.model_name))
     best_coef, best_epoch = -1, -1
     final_train_loss, final_train_coef, final_test_loss, final_test_coef = 0, 0, 0, 0
 
@@ -206,14 +207,14 @@ if __name__ == '__main__':
         test_loss, test_coef = test_epoch(epc, model, test_loader, logger, device, args, wandb)
         if test_coef > best_coef:
             best_coef, best_epoch = test_coef, epc
-            torch.save(model.state_dict(), './ckpt/' + args.model_name + '_best.pkl')
+            torch.save(model.state_dict(), '../data/ckpt/' + args.model_name + '_best.pkl')
 
         pbar.set_description('Epoch: {}\tLoss: {:.4f}\tTrain Coef: {:.3f}\tTest Loss: {:.4f}\tTest Coef: {:.3f}'
               .format(epc, avg_loss, train_coef, test_loss, test_coef))
         if epc == args.epoch - 1:
             final_train_loss, final_train_coef, final_test_loss, final_test_coef = \
                 avg_loss, train_coef, test_loss, test_coef
-    torch.save(model.state_dict(), './ckpt/' + args.model_name + '_final.pkl')
+    torch.save(model.state_dict(), '../data/ckpt/' + args.model_name + '_final.pkl')
     print('Best Test Coef: {:.3f}\tBest Test Epoch: {}'.format(best_coef, best_epoch))
     if not args.test:
         wandb.finish()

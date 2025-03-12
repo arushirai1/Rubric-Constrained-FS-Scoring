@@ -59,7 +59,7 @@ class RGDataset(Dataset):
 
 class FisVDataset(Dataset):
     def __init__(self, video_feat_path, label_path, clip_num=26,
-                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None):
+                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="./elements_preprocessing/super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None):
         self.train = train
         self.video_path = video_feat_path
         # self.erase_path = video_feat_path + '_erTrue'
@@ -161,7 +161,7 @@ class FisVDataset(Dataset):
 
 class FisVPretrainingDataset(FisVDataset):
     def __init__(self, video_feat_path, label_path, clip_num=26,
-                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None, pretraining_threshold_pos=2, pretraining_threshold_neg=-2):
+                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="./elements_preprocessing/super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None, pretraining_threshold_pos=2, pretraining_threshold_neg=-2):
         super().__init__(video_feat_path, label_path, clip_num,
                  score_type, train, vid_id_to_element_list_path, action_mask_lookup, action_masks, gdlt, vision_vlm_inject_path)
 
@@ -223,7 +223,7 @@ class FisVPretrainingDataset(FisVDataset):
 
 class FS800Dataset(Dataset):
     def __init__(self, video_feat_path, label_path, clip_num=26,
-                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None):
+                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="elements_preprocessing/super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None):
         self.train = train
         self.video_path = video_feat_path
 
@@ -318,7 +318,7 @@ class FS800Dataset(Dataset):
 
 class FS800PretrainingDataset(FS800Dataset):
     def __init__(self, video_feat_path, label_path, clip_num=26,
-                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None, pretraining_threshold_pos=2, pretraining_threshold_neg=-2):
+                 score_type='TES', train=True, vid_id_to_element_list_path='', action_mask_lookup="./elements_preprocessing/super_action_mask_lookup.pkl", action_masks=False, gdlt=False, vision_vlm_inject_path=None, pretraining_threshold_pos=2, pretraining_threshold_neg=-2):
         super().__init__(video_feat_path, label_path, clip_num,
                  score_type, train, vid_id_to_element_list_path, action_mask_lookup, action_masks, gdlt, vision_vlm_inject_path)
 
